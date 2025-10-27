@@ -4,7 +4,8 @@ const ctx = canvas.getContext('2d');
 
 // Game settings
 const gridSize = 20;
-const tileCount = canvas.width / gridSize;
+const tileCountX = canvas.width / gridSize;
+const tileCountY = canvas.height / gridSize;
 
 // Game state
 let snake = [{ x: 10, y: 10 }];
@@ -31,7 +32,8 @@ pauseBtn.addEventListener('click', togglePause);
 document.addEventListener('keydown', handleKeyPress);
 
 function startGame() {
-    if (gameRunning && !gamePaused) return;
+    // Stop current game if running
+    if (gameLoop) clearInterval(gameLoop);
     
     // Reset game state
     snake = [{ x: 10, y: 10 }];
@@ -47,6 +49,9 @@ function startGame() {
     
     // Place initial food
     placeFood();
+    
+    // Draw initial state
+    draw();
     
     // Start game loop
     if (gameLoop) clearInterval(gameLoop);
@@ -100,7 +105,7 @@ function update() {
     };
     
     // Check wall collision
-    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+    if (head.x < 0 || head.x >= tileCountX || head.y < 0 || head.y >= tileCountY) {
         gameOver();
         return;
     }
@@ -142,8 +147,8 @@ function placeFood() {
     
     while (!validPosition) {
         food = {
-            x: Math.floor(Math.random() * tileCount),
-            y: Math.floor(Math.random() * tileCount)
+            x: Math.floor(Math.random() * tileCountX),
+            y: Math.floor(Math.random() * tileCountY)
         };
         
         // Check if food is not on snake
@@ -161,12 +166,15 @@ function draw() {
     // Draw grid
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 0.5;
-    for (let i = 0; i <= tileCount; i++) {
+    // Draw vertical lines
+    for (let i = 0; i <= tileCountX; i++) {
         ctx.beginPath();
         ctx.moveTo(i * gridSize, 0);
         ctx.lineTo(i * gridSize, canvas.height);
         ctx.stroke();
-        
+    }
+    // Draw horizontal lines
+    for (let i = 0; i <= tileCountY; i++) {
         ctx.beginPath();
         ctx.moveTo(0, i * gridSize);
         ctx.lineTo(canvas.width, i * gridSize);
